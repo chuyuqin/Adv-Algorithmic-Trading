@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+.web/
+.states/
+*.pkl.bak
+.DS_Store

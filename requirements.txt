@@ -1,0 +1,9 @@
+pandas>=2.0
+numpy>=1.24
+scipy>=1.10
+plotly>=5.18
+reflex>=0.4
+# Optional, only needed to run fetch_data.py against real LSEG data:
+# lseg-data
+# eikon
+# yfinance
