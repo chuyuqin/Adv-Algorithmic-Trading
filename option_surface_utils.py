@@ -229,7 +229,10 @@ def pivot_trade_mid(tidy: pd.DataFrame) -> pd.DataFrame:
 def surface_grid(points: pd.DataFrame, value_col: str, n_strike: int = 40, n_dte: int = 30):
     """
     Interpolate a sparse cloud onto a regular grid for a Plotly Surface.
-    Returns None if there are too few points.
+    Returns None if there are too few points, or if the cloud is too
+    degenerate to triangulate (e.g. every remaining quote sits on a single
+    expiry, so dte has zero range -- real, sparse LSEG pulls do this on
+    plenty of as-of dates, it is not a bug).
     """
     cloud = points.dropna(subset=["strike", "dte", value_col])
     if len(cloud) < 8:
@@ -237,10 +240,18 @@ def surface_grid(points: pd.DataFrame, value_col: str, n_strike: int = 40, n_dte
     x = cloud["strike"].to_numpy(float)
     y = cloud["dte"].to_numpy(float)
     z = cloud[value_col].to_numpy(float)
+    if np.ptp(x) == 0 or np.ptp(y) == 0:
+        # a flat line in strike or dte can't be triangulated into a surface
+        return None
     xi = np.linspace(x.min(), x.max(), n_strike)
     yi = np.linspace(max(0, y.min()), y.max(), n_dte)
     XX, YY = np.meshgrid(xi, yi)
-    ZZ = griddata((x, y), z, (XX, YY), method="linear")
+    try:
+        ZZ = griddata((x, y), z, (XX, YY), method="linear")
+    except Exception:
+        # degenerate/near-collinear point cloud -- skip the sheet, keep the
+        # raw scatter points (that is the honest picture anyway)
+        return None
     # leave holes as None so Plotly does not invent a sheet over empty wings
     return {"x": xi, "y": yi, "z": ZZ}
 

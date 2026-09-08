@@ -4,29 +4,22 @@ MENG FinTech, Algorithmic Trading II -- Assignment 1.1.
 
 **Live site (GitHub Pages):** `https://chuyuqin.github.io/Adv-Algorithmic-Trading/`
 
-## Note to the instructor -- data status on submission
+## Data status
 
-The pipeline, parsing, stats, and app below are all complete and running
-end to end. The one piece missing is a real LSEG pull: I did not have
-access to LSEG Workspace over the weekend to authenticate a session and
-pull real expired-contract history, so `option_pipeline_data.pkl` in this
-submission is a **synthesized stand-in**, not real LSEG data.
+`option_pipeline_data.pkl` is a real LSEG pull (via `lseg-data`, against a
+live Workspace session), not synthetic -- fetched 2026-09-07 and cached by
+`fetch_data.py`. It covers UUUU underlying history plus 302 option
+(RIC x field) series across 53 parsed contracts on the expired-option RIC
+scheme in Appendix A of the assignment.
 
-The synthetic panel is built to match the real thing's shape and behavior
-on purpose -- correct RIC scheme, the same sparsity pattern (MID_PRICE far
-more common than TRDPRC_1, density falling off with moneyness/DTE), same
-column structure a real `get_history()` batch pull would return -- so that
-everything downstream (the parser, the tidy table, the two required stats,
-the 3D surface, the app itself) is real code doing real work on realistic
-data, just not on data that actually traded. That's flagged explicitly
-everywhere: `payload["synthetic"] = True` in the cache, and the page itself
-prints "synthetic demo panel" in its header rather than claiming otherwise.
-
-**Plan:** I'll be on campus Tuesday when class resumes and will get LSEG
-Workspace access sorted with the help desk / in office hours, then re-run
-`fetch_data.py` against a real session and push the update. I wanted to
-turn in a working, complete app on time rather than hold up the whole
-submission for the data pull specifically.
+Earlier drafts of this repo ran on a synthesized stand-in while LSEG
+Workspace wasn't reachable; `option_surface_utils.py`'s
+`synthesize_demo_payload()` is still there as the automatic fallback
+`fetch_data.py`/`load_payload()` use if the pickle is ever missing and no
+LSEG session is available, so the app never silently breaks -- but the
+cache actually committed here is real. `payload["synthetic"]` is `False`
+and the page header confirms it ("loaded from option_pipeline_data.pkl",
+with the fetch timestamp) rather than saying "synthetic demo panel."
 
 ## What this is
 
@@ -68,7 +61,7 @@ plot, and label was updated accordingly.
 | `option_surface_plots.py` | All Plotly figure builders (candlestick, 3D surface, mid-vs-trade, occupancy heatmaps). |
 | `fetch_data.py` | Standalone data pull/cache step. |
 | `build_preview.py` | Regenerates `index.html` from whatever's in `option_pipeline_data.pkl`. |
-| `option_pipeline_data.pkl` | The cache -- currently the synthetic UUUU-like panel described above. |
+| `option_pipeline_data.pkl` | The cache -- a real LSEG pull for UUUU (see Data status above). |
 | `STARTER_README.md` | The original course starter's README, kept for reference. |
 
 ## Why UUUU
@@ -78,7 +71,7 @@ strike grid with mostly-sparse, largely monthly expired listings -- exactly
 the "see the holes" case this assignment is about, unlike a liquid name
 where every strike prints every day.
 
-## Local dev / swapping in the real pull
+## Local dev / re-pulling data
 
 ```bash
 pip install -r requirements.txt
