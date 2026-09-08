@@ -15,14 +15,13 @@ Real LSEG pull requires LSEG Workspace/Eikon running and logged in on this
 machine, plus `lseg.data` (or legacy `eikon`) installed and configured with
 an app key. Without that, this synthesizes a realistic sparse UUUU-like
 panel so the rest of the pipeline (parsing, plotting, the two required
-stats) can be built and demoed today -- and caches THAT to the same pickle
+stats) can still be built and demoed, and caches THAT to the same pickle
 path, clearly flagged with payload["synthetic"] = True, so the app/preview
 always load from the pickle rather than silently regenerating on every run.
 
-*** Before you submit: delete option_pipeline_data.pkl, then re-run this on
-a machine with LSEG Workspace open so the cache holds real data, then
-re-run build_preview.py and re-commit. A synthetic pickle is a placeholder,
-not the deliverable. ***
+To force a fresh pull (e.g. a later as-of date), delete
+option_pipeline_data.pkl, re-run this file with LSEG Workspace open, then
+re-run build_preview.py and re-commit.
 """
 
 from __future__ import annotations
