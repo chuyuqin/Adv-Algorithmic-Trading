@@ -7,7 +7,7 @@ MENG FinTech, Algorithmic Trading II -- Assignment 1.1.
 ## Data status
 
 `option_pipeline_data.pkl` is a real LSEG pull (via `lseg-data`, against a
-live Workspace session), not synthetic -- fetched 2026-09-07 and cached by
+live Workspace session), fetched 2026-09-07 and cached by
 `fetch_data.py`. It covers UUUU underlying history plus 302 option
 (RIC x field) series across 53 parsed contracts on the expired-option RIC
 scheme in Appendix A of the assignment.
